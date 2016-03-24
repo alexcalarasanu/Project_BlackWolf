@@ -4,9 +4,15 @@ package com.company;
  * Created by ZaGunny on 22/03/2016.
  */
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author ZaGunny
@@ -27,6 +33,8 @@ public class Framework extends Canvas {
     private long lastTime;
     private Game game;
 
+    private BufferedImage mainMenuImg;
+
     public Framework() {
         super();
 
@@ -46,6 +54,12 @@ public class Framework extends Canvas {
     }
 
     private void LoadContent() {
+        try {
+            URL mainMenuBGURL = this.getClass().getResource("res/main_menu_bg.png");
+            mainMenuImg = ImageIO.read(mainMenuBGURL);
+        } catch (IOException ex) {
+            Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void GameLoop() {
@@ -108,7 +122,7 @@ public class Framework extends Canvas {
                 //...
                 break;
             case MAIN_MENU:
-                //...
+                g2d.drawImage(mainMenuImg, 0, 0, frameWidth, frameHeight, null);
                 break;
             case OPTIONS:
                 //...
