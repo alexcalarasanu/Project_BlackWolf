@@ -13,7 +13,7 @@ public class Window extends JFrame {
         this.setTitle("Project BlackWolf");
 
         //Sets the size of the frame
-        if(false)//fullscreen
+        if (true)//fullscreen
         {
             this.setUndecorated(true);
             this.setExtendedState(this.MAXIMIZED_BOTH);

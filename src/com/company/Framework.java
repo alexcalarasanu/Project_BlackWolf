@@ -33,7 +33,12 @@ public class Framework extends Canvas {
     private long lastTime;
     private Game game;
 
+
     private BufferedImage mainMenuImg;
+    private BufferedImage startButtonImg;
+    private BufferedImage optionsButtonImg;
+    private BufferedImage helpButtonImg;
+    private BufferedImage exitButtonImg;
 
     public Framework() {
         super();
@@ -57,6 +62,17 @@ public class Framework extends Canvas {
         try {
             URL mainMenuBGURL = this.getClass().getResource("res/main_menu_bg.png");
             mainMenuImg = ImageIO.read(mainMenuBGURL);
+
+            URL startURL = this.getClass().getResource("res/start_button.png");
+            URL optionsURL = this.getClass().getResource("res/options_button.png");
+            URL helpURL = this.getClass().getResource("res/help_button.png");
+            URL exitURL = this.getClass().getResource("res/exit_button.png");
+
+            startButtonImg = ImageIO.read(startURL);
+            optionsButtonImg = ImageIO.read(optionsURL);
+            helpButtonImg = ImageIO.read(helpURL);
+            exitButtonImg = ImageIO.read(exitURL);
+
         } catch (IOException ex) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -123,12 +139,22 @@ public class Framework extends Canvas {
                 break;
             case MAIN_MENU:
                 g2d.drawImage(mainMenuImg, 0, 0, frameWidth, frameHeight, null);
+                g2d.drawImage(startButtonImg, frameWidth / 2 - 320, 250, 640, 100, null);
+                g2d.drawImage(optionsButtonImg, frameWidth / 2 - 320, 450, 640, 100, null);
+                g2d.drawImage(helpButtonImg, frameWidth / 2 - 320, 650, 640, 100, null);
+                g2d.drawImage(exitButtonImg, frameWidth / 2 - 320, 850, 640, 100, null);
                 break;
             case OPTIONS:
                 //...
                 break;
+            case STARTING:
+                break;
+            case VISUALISING:
+                break;
             case GAME_CONTENT_LOADING:
                 //...
+                break;
+            case DESTROYED:
                 break;
         }
     }
@@ -157,17 +183,19 @@ public class Framework extends Canvas {
             return new Point(0, 0);
         }
     }
+
     /**
      * This method is called when keyboard key is released.
      *
      * @param e KeyEvent
      */
     @Override
-    public void keyReleasedFramework(KeyEvent e){
+    public void keyReleasedFramework(KeyEvent e) {
 
     }
+
     @Override
-    public void mouseClicked(MouseEvent e){
+    public void mouseClicked(MouseEvent e) {
 
     }
 }
