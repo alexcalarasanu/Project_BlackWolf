@@ -39,12 +39,13 @@ public abstract class Canvas extends JPanel implements KeyListener, MouseListene
     public void keyPressed(KeyEvent e) {
         keyboardState[e.getKeyCode()] = true;
     }
+
     @Override
-    public void keyReleased(KeyEvent e)
-    {
+    public void keyReleased(KeyEvent e) {
         keyboardState[e.getKeyCode()] = false;
         keyReleasedFramework(e);
     }
+
     @Override
     public void keyTyped(KeyEvent e) {
     }
@@ -63,25 +64,28 @@ public abstract class Canvas extends JPanel implements KeyListener, MouseListene
         else if (e.getButton() == MouseEvent.BUTTON3)
             mouseState[2] = status;
     }
+
     // Methods of the mouse listener.
     @Override
-    public void mousePressed(MouseEvent e)
-    {
+    public void mousePressed(MouseEvent e) {
         mouseKeyStatus(e, true);
+
     }
 
     @Override
-    public void mouseReleased(MouseEvent e)
-    {
+    public void mouseReleased(MouseEvent e) {
         mouseKeyStatus(e, false);
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) { }
+    public void mouseClicked(MouseEvent e) {
+    }
 
     @Override
-    public void mouseEntered(MouseEvent e) { }
+    public void mouseEntered(MouseEvent e) {
+    }
 
     @Override
-    public void mouseExited(MouseEvent e) { }
+    public void mouseExited(MouseEvent e) {
+    }
 }

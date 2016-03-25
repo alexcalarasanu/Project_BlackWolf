@@ -39,6 +39,7 @@ public class Framework extends Canvas {
     private BufferedImage optionsButtonImg;
     private BufferedImage helpButtonImg;
     private BufferedImage exitButtonImg;
+    private BufferedImage titleImg;
 
     public Framework() {
         super();
@@ -63,15 +64,17 @@ public class Framework extends Canvas {
             URL mainMenuBGURL = this.getClass().getResource("res/main_menu_bg.png");
             mainMenuImg = ImageIO.read(mainMenuBGURL);
 
-            URL startURL = this.getClass().getResource("res/start_button.png");
-            URL optionsURL = this.getClass().getResource("res/options_button.png");
-            URL helpURL = this.getClass().getResource("res/help_button.png");
-            URL exitURL = this.getClass().getResource("res/exit_button.png");
+            URL startURL = this.getClass().getResource("res/startButton.png");
+            URL optionsURL = this.getClass().getResource("res/optionsButton.png");
+            URL helpURL = this.getClass().getResource("res/helpButton.png");
+            URL exitURL = this.getClass().getResource("res/exitButton.png");
+            URL titleURL = this.getClass().getResource("res/titleImage2.png");
 
             startButtonImg = ImageIO.read(startURL);
             optionsButtonImg = ImageIO.read(optionsURL);
             helpButtonImg = ImageIO.read(helpURL);
             exitButtonImg = ImageIO.read(exitURL);
+            titleImg = ImageIO.read(titleURL);
 
         } catch (IOException ex) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, ex);
@@ -132,17 +135,18 @@ public class Framework extends Canvas {
     public void Draw(Graphics2D g2d) {
         switch (gameState) {
             case PLAYING:
-                game.Draw(g2d, mousePosition());
+                game.Draw(g2d, mousePosition(), gameTime);
                 break;
             case GAMEOVER:
                 //...
                 break;
             case MAIN_MENU:
                 g2d.drawImage(mainMenuImg, 0, 0, frameWidth, frameHeight, null);
-                g2d.drawImage(startButtonImg, frameWidth / 2 - 320, 250, 640, 100, null);
-                g2d.drawImage(optionsButtonImg, frameWidth / 2 - 320, 450, 640, 100, null);
-                g2d.drawImage(helpButtonImg, frameWidth / 2 - 320, 650, 640, 100, null);
-                g2d.drawImage(exitButtonImg, frameWidth / 2 - 320, 850, 640, 100, null);
+                g2d.drawImage(titleImg, frameWidth / 2 - 350, 100, 640, 200, null);
+                g2d.drawImage(startButtonImg, frameWidth / 2 - 350, 350, 640, 100, null);
+                g2d.drawImage(optionsButtonImg, frameWidth / 2 - 350, 500, 640, 100, null);
+                g2d.drawImage(helpButtonImg, frameWidth / 2 - 350, 650, 640, 100, null);
+                g2d.drawImage(exitButtonImg, frameWidth / 2 - 350, 800, 640, 100, null);
                 break;
             case OPTIONS:
                 //...
@@ -155,6 +159,7 @@ public class Framework extends Canvas {
                 //...
                 break;
             case DESTROYED:
+
                 break;
         }
     }
@@ -196,6 +201,28 @@ public class Framework extends Canvas {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        int mx = e.getX();
+        int my = e.getY();
 
+        if (gameState == Framework.GameState.MAIN_MENU) {
+            //Start Button
+            if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
+                if (my >= 350 && my <= 450) {
+                    newGame();
+                    System.out.printf("playing");
+                }
+            //Options button
+            if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
+                if (my >= 500 && my <= 600)
+                    gameState = Framework.GameState.OPTIONS;
+            //Help button
+            if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
+                if (my >= 650 && my <= 750)
+//                    gameState = Framework.GameState.PLAYING;
+                    //Exit Button
+                    if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
+                        if (my >= 800 && my <= 900)
+                            System.exit(0);
+    }
     }
 }
