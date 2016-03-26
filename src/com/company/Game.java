@@ -3,6 +3,7 @@ package com.company;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import java.util.logging.Logger;
  */
 public class Game {
     private Terrain terrain;
-    private ArrayList<Soldier> unitSoldierList = new ArrayList<Soldier>();
+    private ArrayList<Spearman> unitSpearmanList = new ArrayList<Spearman>();
+    private BuildingOne buildingOne;
+    private boolean isSpearTraining;
 
     public Game() {
         Framework.gameState = Framework.GameState.GAME_CONTENT_LOADING;
@@ -34,7 +37,9 @@ public class Game {
      */
     private void Initialize() {
         terrain = new Terrain();
-        unitSoldierList = new ArrayList<Soldier>();
+        unitSpearmanList = new ArrayList<Spearman>();
+        buildingOne = new BuildingOne();
+
     }
 
     /**
@@ -42,10 +47,12 @@ public class Game {
      */
     private void LoadContent() {
         try {
-            URL soldierURL = this.getClass().getResource("res/soldier.png");
-            Soldier.soldierImg = ImageIO.read(soldierURL);
+            URL soldierURL = this.getClass().getResource("res/spearmanStill.png");
+            Spearman.spearmanImg = ImageIO.read(soldierURL);
+            URL build1URL = this.getClass().getResource("res/baseSprite.png");
+            BuildingOne.building1Img = ImageIO.read(build1URL);
         } catch (IOException ex) {
-            Logger.getLogger(Soldier.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Spearman.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -66,10 +73,15 @@ public class Game {
      */
     public void UpdateGame(long gameTime, Point mousePosition) {
         if (Canvas.keyboardKeyState(KeyEvent.VK_S)) {
-            createSoldierUnit(gameTime);
+            isSpearTraining = true;
             System.out.println("Pressed S");
         }
-        updateSoldiers();
+        if (Canvas.mouseButtonState(MouseEvent.BUTTON1))
+            if (isSpearTraining)
+                createSpearmanUnit(gameTime, mousePosition);
+        updateSpearmen();
+        updateAlliedUnits();
+
     }
 
     /**
@@ -80,43 +92,49 @@ public class Game {
      */
     public void Draw(Graphics2D g2d, Point mousePosition, long gameTime) {
         terrain.Draw(g2d);
-        for (int i = 0; i < unitSoldierList.size(); i++) {
-            unitSoldierList.get(i).Draw(g2d);
-        }
+        for (Spearman anUnitSpearmanList : unitSpearmanList) anUnitSpearmanList.Draw(g2d);
+        buildingOne.Draw(g2d);
     }
 
 
-    public void createSoldierUnit(long gameTime) {
+    public void createSpearmanUnit(long gameTime, Point mousePosition) {
 
-        if (gameTime - Soldier.timeOfLastCreatedSoldier >= Soldier.timeBetweenNewSoldiers) {
+        if (gameTime - Spearman.timeOfLastCreatedSpearman >= Spearman.timeBetweenNewSpearmen) {
             System.out.println("creating soldier");
-            Soldier s = new Soldier();
-            int xCoord = 100;
-            int yCoord = 100;
-            if (unitSoldierList.size() == 0) {
-                s.Initialise(xCoord, yCoord);
-            } else {
+            Spearman s = new Spearman();
+            int xCoord = (int) mousePosition.getX() - 50;
+            int yCoord = (int) mousePosition.getY() - 50;
+            if (unitSpearmanList.size() != 0) {
                 boolean isOccupied = true;
                 int i = 0;
                 while (isOccupied) {
-                    if (xCoord != unitSoldierList.get(i).xCoord) {
-                        xCoord += 100;
-                        isOccupied = false;
-                    } else i++;
-
-                    s.Initialise(xCoord, yCoord);
+                    if (i < unitSpearmanList.size()) {
+                        System.out.println(String.valueOf(unitSpearmanList.get(i).xCoord));
+                        if (xCoord == unitSpearmanList.get(i).xCoord && yCoord == unitSpearmanList.get(i).yCoord) {
+                            i++;
+                        } else isOccupied = false;
+                    } else createSpearmanUnit(gameTime, mousePosition);
                 }
-                unitSoldierList.add(s);
-                Soldier.timeOfLastCreatedSoldier = gameTime;
-                System.out.println("timeoflastcreatedSoldier" + gameTime / Framework.milisecInNanosec);
             }
+            s.Initialise(xCoord, yCoord);
+            unitSpearmanList.add(s);
+            Spearman.timeOfLastCreatedSpearman = gameTime;
         }
     }
 
-    public void updateSoldiers() {
-        for (int i = 0; i < unitSoldierList.size(); i++) {
-            Soldier s = unitSoldierList.get(i);
+
+    public void updateSpearmen() {
+        for (int i = 0; i < unitSpearmanList.size(); i++) {
+            Spearman s = unitSpearmanList.get(i);
             s.Update();
+        }
+    }
+
+    public void updateAlliedUnits() {
+        for (int i = 0; i < unitSpearmanList.size(); i++) {
+            Spearman s = unitSpearmanList.get(i);
+            Rectangle spearmanRectangle = new Rectangle(s.xCoord, s.yCoord, Spearman.spearmanImg.getWidth(), Spearman.spearmanImg.getHeight());
+
         }
     }
 }

@@ -23,7 +23,7 @@ public class Terrain {
 
     private void LoadContent() {
         try {
-            URL terrainURL = this.getClass().getResource("res/terrain.png");
+            URL terrainURL = this.getClass().getResource("res/arenaMap.png");
             terrainImg = ImageIO.read(terrainURL);
         } catch (IOException ex) {
             Logger.getLogger(Terrain.class.getName()).log(Level.SEVERE, null, ex);
