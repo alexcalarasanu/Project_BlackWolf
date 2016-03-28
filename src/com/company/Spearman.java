@@ -16,7 +16,6 @@ public class Spearman {
 
     public int xCoord;
     public int yCoord;
-    public boolean isSelected;
 
     public int movingXSpeed;
     public int movingYSpeed;
@@ -24,7 +23,7 @@ public class Spearman {
 
     public int attackDamage = 10;
     public int armour = 2;
-    public int goldCost = 100;
+    public static int goldCost = 100;
     public long attackSpeed = Framework.secInNanosec / 10 * 2;
     public long timeOfLastAttack = 0;
 
@@ -33,8 +32,8 @@ public class Spearman {
 
     public void Initialise(int xCoord, int yCoord) {
         this.heath = healthInit;
-        this.movingXSpeed = 1;
-        this.movingYSpeed = 1;
+        this.movingXSpeed = 2;
+        this.movingYSpeed = 2;
         this.xCoord = xCoord;
         this.yCoord = yCoord;
     }
@@ -49,7 +48,7 @@ public class Spearman {
     }
 
     public void Draw(Graphics2D g2d) {
-        g2d.drawImage(spearmanImg, xCoord, yCoord, 105, 89, null);
+        g2d.drawImage(spearmanImg, xCoord, yCoord, 63, 53, null);
     }
 
 }

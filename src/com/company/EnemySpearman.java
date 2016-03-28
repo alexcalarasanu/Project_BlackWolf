@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
  * Created by ZaGunny on 26/03/2016.
  */
 public class EnemySpearman {
-    private static final long timeBetweenEnemySpearmenCreatedInit = Framework.secInNanosec * 3;
+    private static final long timeBetweenEnemySpearmenCreatedInit = Framework.secInNanosec * 1;
     public static long timeBetweenNewEnemySpearmen = timeBetweenEnemySpearmenCreatedInit;
     public static long timeOfLastCreatedEnemySpearman = 0;
 
@@ -24,7 +24,7 @@ public class EnemySpearman {
     public final int aggroRange = 200;
     public int attackDamage = 10;
     public int armour = 2;
-    public int goldCost = 100;
+    public static int goldCost = 100;
     public long attackSpeed = Framework.secInNanosec / 10 * 2;
     public long timeOfLastAttack = 0;
 
@@ -33,8 +33,8 @@ public class EnemySpearman {
 
     public void Initialise(int xCoord, int yCoord) {
         this.heath = healthInit;
-        this.movingXSpeed = 1;
-        this.movingYSpeed = 1;
+        this.movingXSpeed = 2;
+        this.movingYSpeed = 2;
         this.isSelected = false;
         this.xCoord = xCoord;
         this.yCoord = yCoord;

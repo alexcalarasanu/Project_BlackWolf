@@ -21,7 +21,7 @@ public class Window extends JFrame {
         else //Window mode
         {
             //size of frame
-            this.setSize(1024,768);
+            this.setSize(1920, 1080);
             // puts the frame in the centre of the screen
             this.setLocationRelativeTo(null);
             //the frame can't be resized by the user

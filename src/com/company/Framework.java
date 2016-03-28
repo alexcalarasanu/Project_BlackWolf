@@ -9,7 +9,6 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,19 +19,19 @@ import java.util.logging.Logger;
 public class Framework extends Canvas {
     public static int frameWidth;
     public static int frameHeight;
+    public static int levelSelected;
 
     public static final long milisecInNanosec = 1000000L;
     public static final long secInNanosec = 1000000000L;
     private final int GAME_FPS = 60;
     private final long GAME_UPDATE_PERIOD = secInNanosec / GAME_FPS;
 
-    public static enum GameState {STARTING, VISUALISING, GAME_CONTENT_LOADING, MAIN_MENU, OPTIONS, PLAYING, GAMEOVER, DESTROYED}
+    public static enum GameState {STARTING, VISUALISING, GAME_CONTENT_LOADING, MAIN_MENU, OPTIONS, PLAYING, GAMEOVER, DESTROYED, HELP}
 
     public static GameState gameState;
     private long gameTime;
     private long lastTime;
     private Game game;
-
 
     private BufferedImage mainMenuImg;
     private BufferedImage startButtonImg;
@@ -40,6 +39,8 @@ public class Framework extends Canvas {
     private BufferedImage helpButtonImg;
     private BufferedImage exitButtonImg;
     private BufferedImage titleImg;
+    private BufferedImage helpBGImg;
+    private BufferedImage optionsBGImg;
 
     public Framework() {
         super();
@@ -69,22 +70,28 @@ public class Framework extends Canvas {
             URL helpURL = this.getClass().getResource("res/helpButton.png");
             URL exitURL = this.getClass().getResource("res/exitButton.png");
             URL titleURL = this.getClass().getResource("res/titleImage2.png");
+            URL helpBGURL = this.getClass().getResource("res/helpBackground.png");
+            URL optionsBG = this.getClass().getResource("res/optionsBackground.png");
+            optionsBGImg = ImageIO.read(optionsBG);
 
             startButtonImg = ImageIO.read(startURL);
             optionsButtonImg = ImageIO.read(optionsURL);
             helpButtonImg = ImageIO.read(helpURL);
             exitButtonImg = ImageIO.read(exitURL);
             titleImg = ImageIO.read(titleURL);
+            helpBGImg = ImageIO.read(helpBGURL);
 
-        } catch (IOException ex) {
+
+        } catch (Exception ex) {
             Logger.getLogger(Framework.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     private void GameLoop() {
         long visualisingTime = 0, lastVisualisingTime = System.nanoTime();
-        //Variables used to see calculate for how long the thread needts to be put to sleep, to match GAME_FPS
+        //Variables used to see calculate for how long the thread needs to be put to sleep, to match GAME_FPS
         long beginTime, timeTaken, timeLeft;
+
         while (true) {
             beginTime = System.nanoTime();
             switch (gameState) {
@@ -100,6 +107,21 @@ public class Framework extends Canvas {
                 case MAIN_MENU:
                     break;
                 case OPTIONS:
+                    if (Canvas.mouseButtonState(MouseEvent.BUTTON1)) {
+                        System.out.println(mousePosition().getX() + " " + mousePosition().getY());
+                        if (mousePosition().getX() <= 1080 && mousePosition().getX() >= 820 && mousePosition().getY() <= 960 && mousePosition().getY() >= 920) {
+                            gameState = GameState.MAIN_MENU;
+                        }
+                        if (mousePosition().getX() >= 90 && mousePosition().getX() <= 590 && mousePosition().getY() >= 455 && mousePosition().getY() <= 732) {
+                            levelSelected = 0;
+                            gameState = GameState.MAIN_MENU;
+                        }
+                        if (mousePosition().getX() >= 1355 && mousePosition().getX() <= 1850 && mousePosition().getY() >= 455 && mousePosition().getY() <= 732) {
+                            levelSelected = 1;
+                            gameState = GameState.MAIN_MENU;
+                        }
+
+                    }
                     break;
                 case GAME_CONTENT_LOADING:
                     break;
@@ -107,6 +129,15 @@ public class Framework extends Canvas {
                     Initialize();
                     LoadContent();
                     gameState = GameState.MAIN_MENU;
+                    break;
+                case HELP:
+                    if (Canvas.mouseButtonState(MouseEvent.BUTTON1)) {
+                        System.out.println(mousePosition().getX() + " " + mousePosition().getY());
+                        if (mousePosition().getX() <= 1080 && mousePosition().getX() >= 820 && mousePosition().getY() <= 460 && mousePosition().getY() >= 920) {
+                            gameState = GameState.MAIN_MENU;
+                        }
+                    }
+                    //...
                     break;
                 case VISUALISING:
                     if (this.getWidth() > 1 && visualisingTime > secInNanosec) {
@@ -137,7 +168,7 @@ public class Framework extends Canvas {
     public void Draw(Graphics2D g2d) {
         switch (gameState) {
             case PLAYING:
-                game.Draw(g2d, mousePosition(), gameTime);
+                game.Draw(g2d);
                 break;
             case GAMEOVER:
                 g2d.drawString("GAME OVER", frameWidth / 2, frameHeight / 2);
@@ -151,7 +182,7 @@ public class Framework extends Canvas {
                 g2d.drawImage(exitButtonImg, frameWidth / 2 - 350, 800, 640, 100, null);
                 break;
             case OPTIONS:
-                //...
+                g2d.drawImage(optionsBGImg, 0, 0, frameWidth, frameHeight, null);
                 break;
             case STARTING:
                 break;
@@ -160,6 +191,8 @@ public class Framework extends Canvas {
             case GAME_CONTENT_LOADING:
                 //...
                 break;
+            case HELP:
+                g2d.drawImage(helpBGImg, 0, 0, frameWidth, frameHeight, null);
             case DESTROYED:
 
                 break;
@@ -172,6 +205,7 @@ public class Framework extends Canvas {
         game = new Game();
         EnemySpearman.restartSpearman();
         Spearman.restartSpearman();
+        Giant.restartGiants();
     }
 
     private void restartGame() {
@@ -219,15 +253,15 @@ public class Framework extends Canvas {
             if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
                 if (my >= 500 && my <= 600)
                     gameState = Framework.GameState.OPTIONS;
-            //Help button
+//            //Help button
             if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
                 if (my >= 650 && my <= 750)
-//                    gameState = Framework.GameState.PLAYING;
-                    //Exit Button
-                    if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
-                        if (my >= 800 && my <= 900)
-                            System.exit(0);
-    }
+                    gameState = GameState.HELP;
+//                    //Exit Button
+            if (mx >= frameWidth / 2 - 350 && mx <= frameWidth / 2 + 290)
+                if (my >= 800 && my <= 900)
+                    System.exit(0);
+        }
     }
 
 }

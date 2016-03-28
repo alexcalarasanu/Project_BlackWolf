@@ -23,8 +23,14 @@ public class Terrain {
 
     private void LoadContent() {
         try {
-            URL terrainURL = this.getClass().getResource("res/arenaMap.png");
+            if (Framework.levelSelected == 0) {
+                URL terrainURL = this.getClass().getResource("res/forestMap.png");
+                terrainImg = ImageIO.read(terrainURL);
+            } else {
+                URL terrainURL = this.getClass().getResource("res/volcanoMap.png");
             terrainImg = ImageIO.read(terrainURL);
+            }
+
         } catch (IOException ex) {
             Logger.getLogger(Terrain.class.getName()).log(Level.SEVERE, null, ex);
         }
