@@ -4,12 +4,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
- * Created by ZaGunny on 24/03/2016.
+ * Created by ZaGunny on 26/03/2016.
  */
-public class Spearman {
-    private static final long timeBetweenSpearmenCreatedInit = Framework.secInNanosec * 1;
-    public static long timeBetweenNewSpearmen = timeBetweenSpearmenCreatedInit;
-    public static long timeOfLastCreatedSpearman = 0;
+public class EnemySpearman {
+    private static final long timeBetweenEnemySpearmenCreatedInit = Framework.secInNanosec * 3;
+    public static long timeBetweenNewEnemySpearmen = timeBetweenEnemySpearmenCreatedInit;
+    public static long timeOfLastCreatedEnemySpearman = 0;
 
     private final int healthInit = 50;
     public int heath;
@@ -18,10 +18,10 @@ public class Spearman {
     public int yCoord;
     public boolean isSelected;
 
-    public int movingXSpeed;
-    public int movingYSpeed;
+    public double movingXSpeed;
+    public double movingYSpeed;
+    public final int attackRange = 50;
     public final int aggroRange = 200;
-
     public int attackDamage = 10;
     public int armour = 2;
     public int goldCost = 100;
@@ -35,21 +35,24 @@ public class Spearman {
         this.heath = healthInit;
         this.movingXSpeed = 1;
         this.movingYSpeed = 1;
+        this.isSelected = false;
         this.xCoord = xCoord;
         this.yCoord = yCoord;
     }
 
     public static void restartSpearman() {
-        Spearman.timeBetweenNewSpearmen = timeBetweenSpearmenCreatedInit;
-        Spearman.timeOfLastCreatedSpearman = 0;
+        EnemySpearman.timeBetweenNewEnemySpearmen = timeBetweenEnemySpearmenCreatedInit;
+        EnemySpearman.timeOfLastCreatedEnemySpearman = 0;
     }
 
     public void Update() {
-        xCoord += movingXSpeed;
+        this.xCoord -= movingXSpeed;
     }
 
     public void Draw(Graphics2D g2d) {
-        g2d.drawImage(spearmanImg, xCoord, yCoord, 105, 89, null);
+        g2d.drawImage(spearmanImg, xCoord, yCoord, 63, 53, null);
+
     }
 
 }
+

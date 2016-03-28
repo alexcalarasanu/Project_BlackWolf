@@ -94,6 +94,8 @@ public class Framework extends Canvas {
                     lastTime = System.nanoTime();
                     break;
                 case GAMEOVER:
+                    if (Canvas.keyboardKeyState(KeyEvent.VK_ENTER))
+                        gameState = GameState.MAIN_MENU;
                     break;
                 case MAIN_MENU:
                     break;
@@ -138,7 +140,7 @@ public class Framework extends Canvas {
                 game.Draw(g2d, mousePosition(), gameTime);
                 break;
             case GAMEOVER:
-                //...
+                g2d.drawString("GAME OVER", frameWidth / 2, frameHeight / 2);
                 break;
             case MAIN_MENU:
                 g2d.drawImage(mainMenuImg, 0, 0, frameWidth, frameHeight, null);
@@ -168,6 +170,8 @@ public class Framework extends Canvas {
         gameTime = 0;
         lastTime = System.nanoTime();
         game = new Game();
+        EnemySpearman.restartSpearman();
+        Spearman.restartSpearman();
     }
 
     private void restartGame() {
@@ -225,4 +229,5 @@ public class Framework extends Canvas {
                             System.exit(0);
     }
     }
+
 }
