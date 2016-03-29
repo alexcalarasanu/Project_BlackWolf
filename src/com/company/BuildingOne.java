@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 public class BuildingOne {
 
 
-    private final int healthInit = 500;
+    private final int healthInit = 1000;
 
     public int health;
 

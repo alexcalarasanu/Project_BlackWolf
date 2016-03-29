@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.company.Framework.frameHeight;
+import static com.company.Framework.frameWidth;
 
 /**
  * Created by ZaGunny on 22/03/2016.
@@ -25,11 +26,13 @@ public class Game {
     private ArrayList<Rectangle> enemySpearmanRectangleList;
     private ArrayList<Giant> unitGiantList;
     private ArrayList<Rectangle> giantRectangleList;
+    private int blackSmithCounter;
     private int playerGold;
     private int enemyGold;
     private long lastGoldTick;
     private Font goldFont = new Font("Futura", Font.BOLD, 20);
-    public int playerScore;
+    public static boolean playerWon = false;
+    public static int playerScore;
 
 
     private ArrayList<EnemySpearman> unitEnemySpearmanList;
@@ -43,6 +46,7 @@ public class Game {
     private Clip allyDeathClip;
     private AudioInputStream enemyDeathAIS;
     private Clip enemyDeathClip;
+    private Blacksmith blackSmith;
 
     public Game() {
         Framework.gameState = Framework.GameState.GAME_CONTENT_LOADING;
@@ -83,6 +87,9 @@ public class Game {
         castle.yCoord = frameHeight / 2 - 150;
         enemyCastle.xCoord = 1680;
         enemyCastle.yCoord = frameHeight / 2 - 150;
+        blackSmithCounter = 0;
+        blackSmith = new Blacksmith();
+
 
     }
 
@@ -101,6 +108,8 @@ public class Game {
             enemyCastle.building1Img = ImageIO.read(enemyCastleURL);
             URL enemySpearmanURL = this.getClass().getResource("res/enemy.png");
             EnemySpearman.spearmanImg = ImageIO.read(enemySpearmanURL);
+            URL blackSmithURL = this.getClass().getResource("res/allyBlacksmith.png");
+            Blacksmith.buildingImg = ImageIO.read(blackSmithURL);
             allyDeathAIS = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("res/sounds/allyDeathSound.wav"));
             allyDeathClip = AudioSystem.getClip();
             allyDeathClip.open(allyDeathAIS);
@@ -134,19 +143,25 @@ public class Game {
             Framework.gameState = Framework.GameState.MAIN_MENU;
         if (Canvas.keyboardKeyState(KeyEvent.VK_S)) {
             isSpearTraining = true;
-            System.out.println("Pressed S");
             isGiantTraining = false;
         }
         if (Canvas.keyboardKeyState(KeyEvent.VK_G)) {
             isGiantTraining = true;
-            System.out.println("Pressed G");
             isSpearTraining = false;
         }
         if (Canvas.mouseButtonState(MouseEvent.BUTTON1)) {
-            if (isSpearTraining)
-                createSpearmanUnit(gameTime, mousePosition);
-            if (isGiantTraining)
-                createGiantUnit(gameTime, mousePosition);
+            if (mousePosition.getX() >= 50 && mousePosition.getX() <= frameWidth / 2 - 100 && mousePosition.getY() <= 680 && mousePosition.getY() >= 350) {
+                if (isSpearTraining)
+                    createSpearmanUnit(gameTime, mousePosition);
+                if (isGiantTraining)
+                    createGiantUnit(gameTime, mousePosition);
+            }
+        }
+        if (Canvas.keyboardKeyState(KeyEvent.VK_B)) {
+            if (playerGold >= Blacksmith.goldCost) {
+                blackSmithCounter++;
+                playerGold -= Blacksmith.goldCost;
+            }
         }
         tickGold(gameTime);
         createEnemySpearmanUnit(gameTime);
@@ -158,8 +173,7 @@ public class Game {
     /**
      * Draw the game to the screen.
      *
-     * @param g2d      Graphics2D
-     *
+     * @param g2d Graphics2D
      */
     public void Draw(Graphics2D g2d) {
         g2d.setFont(goldFont);
@@ -168,31 +182,28 @@ public class Game {
         castle.Draw(g2d);
         enemyCastle.Draw(g2d);
         for (Spearman anUnitSpearmanList : unitSpearmanList) anUnitSpearmanList.Draw(g2d);
-        for (int i = 0; i < unitEnemySpearmanList.size(); i++) {
-            unitEnemySpearmanList.get(i).Draw(g2d);
-        }
-        for (int i = 0; i < unitGiantList.size(); i++) {
-            unitGiantList.get(i).Draw(g2d);
-        }
+        for (EnemySpearman anUnitEnemySpearmanList : unitEnemySpearmanList) anUnitEnemySpearmanList.Draw(g2d);
+        for (Giant anUnitGiantList : unitGiantList) anUnitGiantList.Draw(g2d);
         String playerGoldString = "Gold: " + String.valueOf(playerGold);
         g2d.drawString(playerGoldString, 200, 20);
         String playerScoreString = "Score: " + String.valueOf(playerScore);
         g2d.drawString(playerScoreString, 400, 20);
+        for (int i = 0; i < blackSmithCounter; i++) {
+            blackSmith.Draw(g2d, i);
+        }
     }
 
-    public void createEnemySpearmanUnit(long gameTime) {
+    private void createEnemySpearmanUnit(long gameTime) {
         if (gameTime - EnemySpearman.timeOfLastCreatedEnemySpearman >= EnemySpearman.timeBetweenNewEnemySpearmen && enemyGold >= EnemySpearman.goldCost) {
-            System.out.println("creating enemy");
             EnemySpearman es = new EnemySpearman();
             int enemyXCoord = 1600;
             Random rand = new Random();
-            int enemyYCoord = rand.nextInt(700 - 300 + 1) + 300;
+            int enemyYCoord = rand.nextInt(680 - 350 + 1) + 350;
             if (unitEnemySpearmanList.size() != 0) {
                 boolean isOccupied = true;
                 int i = 0;
                 while (isOccupied) {
                     if (i < unitEnemySpearmanList.size()) {
-                        System.out.println(String.valueOf(unitEnemySpearmanList.get(i).xCoord));
                         if (enemyXCoord == unitEnemySpearmanList.get(i).xCoord && enemyYCoord == unitEnemySpearmanList.get(i).yCoord) {
                             i++;
                         } else isOccupied = false;
@@ -206,7 +217,7 @@ public class Game {
     }
 
 
-    public void createSpearmanUnit(long gameTime, Point mousePosition) {
+    private void createSpearmanUnit(long gameTime, Point mousePosition) {
 
         if (gameTime - Spearman.timeOfLastCreatedSpearman >= Spearman.timeBetweenNewSpearmen && playerGold >= Spearman.goldCost) {
             Spearman s = new Spearman();
@@ -218,7 +229,6 @@ public class Game {
                 int i = 0;
                 while (isOccupied) {
                     if (i < unitSpearmanList.size()) {
-                        System.out.println(String.valueOf(unitSpearmanList.get(i).xCoord));
                         if (xCoord == unitSpearmanList.get(i).xCoord && yCoord == unitSpearmanList.get(i).yCoord) {
                             i++;
                         } else isOccupied = false;
@@ -231,7 +241,7 @@ public class Game {
         }
     }
 
-    public void createGiantUnit(long gameTime, Point mousePosition) {
+    private void createGiantUnit(long gameTime, Point mousePosition) {
 
         if (gameTime - Giant.timeOfLastCreatedGiant >= Giant.timeBetweenNewGiants && playerGold >= Giant.goldCost) {
             Giant g = new Giant();
@@ -243,7 +253,6 @@ public class Game {
                 int i = 0;
                 while (isOccupied) {
                     if (i < unitGiantList.size()) {
-                        System.out.println(String.valueOf(unitGiantList.get(i).xCoord));
                         if (xCoord == unitGiantList.get(i).xCoord && yCoord == unitGiantList.get(i).yCoord) {
                             i++;
                         } else isOccupied = false;
@@ -257,7 +266,7 @@ public class Game {
     }
 
 
-    public void updateSpearmen(long gameTime) {
+    private void updateSpearmen(long gameTime) {
         for (int i = 0; i < unitSpearmanList.size(); i++) {
             Spearman s = unitSpearmanList.get(i);
             Rectangle r = new Rectangle(s.xCoord, s.yCoord, Spearman.spearmanImg.getWidth() / 3, Spearman.spearmanImg.getHeight() / 3);
@@ -266,11 +275,13 @@ public class Game {
                 s.movingXSpeed = 0;
                 if (gameTime - s.timeOfLastAttack >= s.attackSpeed) {
 
-                    enemyCastle.health -= s.attackDamage;
+                    enemyCastle.health -= s.attackDamage + blackSmithCounter;
                     s.timeOfLastAttack = gameTime;
                 }
-                if (enemyCastle.health <= 0)
+                if (enemyCastle.health <= 0) {
+                    playerWon = true;
                     Framework.gameState = Framework.GameState.GAMEOVER;
+                }
             }
             for (int j = 0; j < unitEnemySpearmanList.size(); j++) {
                 EnemySpearman es = unitEnemySpearmanList.get(j);
@@ -282,36 +293,38 @@ public class Game {
                     if (es.yCoord > s.yCoord)
                         s.yCoord += s.movingYSpeed;
                 }
-                if (spearmanRectangleList.get(i).intersects(enemySpearmanRectangleList.get(j))) {
-                    if (s.heath >= 0 && es.heath >= 0) {
-                        s.movingXSpeed = 0;
-                        es.movingXSpeed = 0;
-                        s.movingYSpeed = 0;
-                        es.movingYSpeed = 0;
-                        if (gameTime - s.timeOfLastAttack >= s.attackSpeed) {
-                            es.heath -= (s.attackDamage - es.armour);
-                            s.timeOfLastAttack = gameTime;
+                if (spearmanRectangleList.size() != 0) {
+                    if (spearmanRectangleList.get(i).intersects(enemySpearmanRectangleList.get(j))) {
+                        if (s.heath >= 0 && es.heath >= 0) {
+                            s.movingXSpeed = 0;
+                            es.movingXSpeed = 0;
+                            s.movingYSpeed = 0;
+                            es.movingYSpeed = 0;
+                            if (gameTime - s.timeOfLastAttack >= s.attackSpeed) {
+                                es.heath -= (s.attackDamage - es.armour + blackSmithCounter);
+                                s.timeOfLastAttack = gameTime;
+
+                            }
+                            if (gameTime - es.timeOfLastAttack >= es.attackSpeed) {
+                                s.heath -= (es.attackDamage - s.armour - blackSmithCounter);
+                                es.timeOfLastAttack = gameTime;
+
+                            }
+                        } else if (s.heath <= 0) {
+                            unitSpearmanList.remove(i);
+                            playerScore -= 50;
+                            es.movingXSpeed = 2;
+                            allyDeathClip.setFramePosition(0);
+                            allyDeathClip.start();
+
+                        } else {
+                            unitEnemySpearmanList.remove(j);
+                            s.movingXSpeed = 2;
+                            playerScore += 100;
+                            enemyDeathClip.setFramePosition(0);
+                            enemyDeathClip.start();
 
                         }
-                        if (gameTime - es.timeOfLastAttack >= es.attackSpeed) {
-                            s.heath -= (es.attackDamage - s.armour);
-                            es.timeOfLastAttack = gameTime;
-
-                        }
-                    } else if (s.heath <= 0) {
-                        unitSpearmanList.remove(i);
-                        playerScore -= 50;
-                        es.movingXSpeed = 2;
-                        allyDeathClip.setFramePosition(0);
-                        allyDeathClip.start();
-
-                    } else {
-                        unitEnemySpearmanList.remove(j);
-                        s.movingXSpeed = 2;
-                        playerScore += 100;
-                        enemyDeathClip.setFramePosition(0);
-                        enemyDeathClip.start();
-
                     }
                 }
             }
@@ -320,7 +333,7 @@ public class Game {
         }
     }
 
-    public void updateGiant(long gameTime) {
+    private void updateGiant(long gameTime) {
 
         for (int i = 0; i < unitGiantList.size(); i++) {
             Giant g = unitGiantList.get(i);
@@ -329,11 +342,13 @@ public class Game {
             if (giantRectangleList.get(i).intersects(enemyCastleRectangle)) {
                 if (gameTime - g.timeOfLastAttack >= g.attackSpeed) {
                     g.movingXSpeed = 0;
-                    enemyCastle.health -= g.attackDamage;
+                    enemyCastle.health -= g.attackDamage + blackSmithCounter;
                     g.timeOfLastAttack = gameTime;
                 }
-                if (enemyCastle.health <= 0)
+                if (enemyCastle.health <= 0) {
                     Framework.gameState = Framework.GameState.GAMEOVER;
+                    playerWon = true;
+                }
             }
             for (int j = 0; j < unitEnemySpearmanList.size(); j++) {
                 EnemySpearman es = unitEnemySpearmanList.get(j);
@@ -352,7 +367,7 @@ public class Game {
                         g.movingYSpeed = 0;
                         es.movingYSpeed = 0;
                         if (gameTime - g.timeOfLastAttack >= g.attackSpeed) {
-                            es.heath -= (g.attackDamage - es.armour);
+                            es.heath -= (g.attackDamage - es.armour - blackSmithCounter);
                             g.timeOfLastAttack = gameTime;
 
                         }
@@ -371,8 +386,8 @@ public class Game {
 
                     } else {
                         unitEnemySpearmanList.remove(j);
-                        g.movingXSpeed = 2;
-                        g.movingYSpeed = 2;
+                        g.movingXSpeed = 1;
+                        g.movingYSpeed = 1;
                         playerScore += 100;
                         enemyDeathClip.setFramePosition(0);
                         enemyDeathClip.start();
@@ -384,21 +399,19 @@ public class Game {
         }
     }
 
-    public void updateEnemySpearmen(long gameTime) {
+    private void updateEnemySpearmen(long gameTime) {
 
         for (int i = 0; i < unitEnemySpearmanList.size(); i++) {
             EnemySpearman es = unitEnemySpearmanList.get(i);
             Rectangle er = new Rectangle(es.xCoord, es.yCoord, EnemySpearman.spearmanImg.getWidth() / 3, EnemySpearman.spearmanImg.getHeight() / 3);
             enemySpearmanRectangleList.add(i, er);
-            for (int j = 0; j < unitSpearmanList.size(); j++) {
-                Spearman s = unitSpearmanList.get(j);
+            for (Spearman s : unitSpearmanList)
                 if (s.xCoord >= es.xCoord - es.aggroRange && s.xCoord < es.xCoord) {
                     if (es.yCoord > s.yCoord)
                         es.yCoord -= es.movingYSpeed;
                     if (es.yCoord < s.yCoord)
                         es.yCoord += es.movingYSpeed;
                 }
-            }
             if (enemySpearmanRectangleList.get(i).intersects(castleRectangle)) {
                 if (gameTime - es.timeOfLastAttack >= es.attackSpeed) {
                     es.movingXSpeed = 0;
@@ -414,7 +427,7 @@ public class Game {
 
     }
 
-    protected void tickGold(long gameTime) {
+    private void tickGold(long gameTime) {
         long timeBetweenGoldTicks = Framework.secInNanosec;
         if (gameTime - lastGoldTick >= timeBetweenGoldTicks) {
             playerGold += 50;

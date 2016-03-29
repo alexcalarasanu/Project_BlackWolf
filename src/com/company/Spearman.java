@@ -3,9 +3,6 @@ package com.company;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- * Created by ZaGunny on 24/03/2016.
- */
 public class Spearman {
     private static final long timeBetweenSpearmenCreatedInit = Framework.secInNanosec * 1;
     public static long timeBetweenNewSpearmen = timeBetweenSpearmenCreatedInit;

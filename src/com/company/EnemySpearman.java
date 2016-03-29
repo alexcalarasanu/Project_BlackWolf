@@ -3,11 +3,8 @@ package com.company;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- * Created by ZaGunny on 26/03/2016.
- */
-public class EnemySpearman {
-    private static final long timeBetweenEnemySpearmenCreatedInit = Framework.secInNanosec * 1;
+class EnemySpearman {
+    private static final long timeBetweenEnemySpearmenCreatedInit = Framework.secInNanosec * 2;
     public static long timeBetweenNewEnemySpearmen = timeBetweenEnemySpearmenCreatedInit;
     public static long timeOfLastCreatedEnemySpearman = 0;
 
@@ -20,7 +17,6 @@ public class EnemySpearman {
 
     public double movingXSpeed;
     public double movingYSpeed;
-    public final int attackRange = 50;
     public final int aggroRange = 200;
     public int attackDamage = 10;
     public int armour = 2;

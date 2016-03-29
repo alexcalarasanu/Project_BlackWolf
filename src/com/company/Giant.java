@@ -3,9 +3,6 @@ package com.company;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- * Created by ZaGunny on 28/03/2016.
- */
 public class Giant {
     private static final long timeBetweenGiantsCreatedInit = Framework.secInNanosec * 1;
     public static long timeBetweenNewGiants = timeBetweenGiantsCreatedInit;
@@ -21,7 +18,7 @@ public class Giant {
     public int movingYSpeed;
     public final int aggroRange = 200;
 
-    public int attackDamage = 15;
+    public int attackDamage = 25;
     public int armour = 4;
     public static int goldCost = 200;
     public long attackSpeed = Framework.secInNanosec / 10 * 5;
