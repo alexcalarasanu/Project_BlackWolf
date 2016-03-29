@@ -1,6 +1,9 @@
 package com.company;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -44,6 +47,8 @@ public class Framework extends Canvas {
     private BufferedImage highscoresBG;
     private BufferedImage highscoresButt;
     private Font goldFont = new Font("Futura", Font.BOLD, 20);
+    private AudioInputStream soundTrackStream;
+    private Clip soundTrackClip;
     java.util.List<Highscore> scoresList = new ArrayList<Highscore>();
 
     public Framework() {
@@ -80,6 +85,10 @@ public class Framework extends Canvas {
             URL highScoresbURL = this.getClass().getResource("res/highscoreButton.png");
             URL highscoresURL = this.getClass().getResource("res/interfaceBackground.png");
 
+            soundTrackStream = AudioSystem.getAudioInputStream(getClass().getResourceAsStream("res/sounds/interfaceMusic.wav"));
+            soundTrackClip = AudioSystem.getClip();
+            soundTrackClip.open(soundTrackStream);
+
             mainMenuImg = ImageIO.read(mainMenuBGURL);
             highscoresBG = ImageIO.read(highscoresURL);
             highscoresButt = ImageIO.read(highScoresbURL);
@@ -106,11 +115,18 @@ public class Framework extends Canvas {
 
         while (true) {
             beginTime = System.nanoTime();
+
             switch (gameState) {
                 case PLAYING:
+                    soundTrackClip.stop();
                     gameTime += System.nanoTime() - lastTime;
                     game.UpdateGame(gameTime, mousePosition());
                     lastTime = System.nanoTime();
+                    if (Canvas.keyboardKeyState(KeyEvent.VK_ESCAPE)) {
+                        soundTrackClip.setFramePosition(0);
+                        soundTrackClip.start();
+                        gameState = GameState.MAIN_MENU;
+                    }
                     break;
                 case GAMEOVER:
                     String s;
@@ -144,6 +160,8 @@ public class Framework extends Canvas {
                 case STARTING:
                     Initialize();
                     LoadContent();
+                    soundTrackClip.setFramePosition(0);
+                    soundTrackClip.loop(0);
                     gameState = GameState.MAIN_MENU;
                     break;
                 case DESTROYED:
